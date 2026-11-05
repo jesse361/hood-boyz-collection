@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hood Boyz Collection
 
-## Getting Started
+Streetwear shop for Hood Boyz. Prices are stored in Ghana cedis. Paystack amounts are charged in pesewas. The browser never decides a total, and an order stays unpaid until Paystack verifies it or a staff member confirms pay on delivery.
 
-First, run the development server:
+## Local shop
+
+Node 22 is expected. From this folder:
 
 ```bash
+npm run db:setup
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`db:setup` starts a local Postgres on port 54351, applies `supabase/migrations`, and seeds the six supplied garments, demonstration stock, shipping methods, and the HOOD10 coupon. The first super admin is created from `INITIAL_ADMIN_EMAIL` and `INITIAL_ADMIN_PASSWORD` in `.env.local`. The password is written to `.local/admin-credentials.txt` and is not printed here.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy `.env.example` if you want to set those values before the first setup.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## What is connected
 
-## Learn More
+- Shop, bag, wishlist, checkout, account, and admin read this database.
+- Without `PAYSTACK_SECRET_KEY`, card and mobile money are unavailable. Pay on delivery creates a pending order. There is no button that marks a card payment successful.
+- Without `NEXT_PUBLIC_SUPABASE_URL`, accounts use the local `profiles` table and uploads go to `public/uploads`. Point `DATABASE_URL` at the same Supabase project before using its Auth or Storage.
+- Sample prices and demonstration stock stay labeled until you turn those flags off in Admin → Settings.
 
-To learn more about Next.js, take a look at the following resources:
+## Checks
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm test
+npm run typecheck
+npm run lint
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Use the same SQL migrations on the production database. Set `SESSION_SECRET`, the admin seed values, `NEXT_PUBLIC_APP_URL`, and Paystack keys in the host environment. The Paystack webhook is `POST /api/payments/paystack`.
